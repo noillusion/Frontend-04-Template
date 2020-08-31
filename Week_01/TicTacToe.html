@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe</title>
+    <style>
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 1px solid black;
+            background: white;
+            font-size: 50px;
+            line-height: 100px;
+            text-align: center;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="board"></div>
+    <script>
+        const pattern = [
+            0, 0, 0,
+            0, 0, 0,
+            0, 0, 0
+        ];
+        function show() {
+            let board = document.getElementById('board');
+            board.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const element = pattern[i * 3 + j];
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.innerText = element === 2 ? 'X' : element === 1 ? 'O' : '';
+                    cell.addEventListener('click', () => { userMove(i, j) });
+                    board.appendChild(cell);
+                }
+                board.appendChild(document.createElement('br'));
+            }
+        }
+        let color = 1;
+        function userMove(i, j) {
+            if (pattern[i * 3 + j] > 0) return false;
+            pattern[i * 3 + j] = color;
+            if (check(pattern, color, i, j)) {
+                alert(color === 2 ? 'X is win' : 'O is win');
+            }
+            color = 3 - color;
+            show();
+            computerMove();
+        }
+        function computerMove() {
+            const choice = bestChoice(pattern, color);
+            if (choice.point) {
+                let { point } = choice;
+                pattern[point[0] * 3 + point[1]] = color;
+            }
+            if (choice.point && check(pattern, color, choice.point[0], choice.point[1])) {
+                alert(color === 2 ? 'X is win' : 'O is win');
+            }
+            color = 3 - color;
+            console.log(bestChoice(pattern, color));
+            show();
+        }
+        function check(pattern, color, i, j) {
+            {
+                let win = true;
+                for (let t = 0; t < 3; t++) {
+                    if (pattern[i * 3 + t] != color) {
+                        win = false;
+                    }
+                }
+                if (win) return true;
+            }
+            {
+                let win = true;
+                for (let t = 0; t < 3; t++) {
+                    if (pattern[t * 3 + j] != color) {
+                        win = false;
+                    }
+                }
+                if (win) return true;
+            }
+            if (i === j) {
+                let win = true;
+                for (let t = 0; t < 3; t++) {
+                    if (pattern[t * 3 + t] != color) {
+                        win = false;
+                    }
+                }
+                if (win) return true;
+            }
+            if (i + j === 2) {
+                let win = true;
+                for (let t = 0; t < 3; t++) {
+                    if (pattern[t * 3 + 2 - t] != color) {
+                        win = false;
+                    }
+                }
+                if (win) return true;
+            }
+            return false;
+        }
+        function clone(pattern) {
+            return Object.create(pattern);
+        }
+        function willWin(pattern, color) {
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    let temp = clone(pattern);
+                    if (pattern[i * 3 + j] > 0) continue;
+                    temp[i * 3 + j] = color;
+                    if (check(temp, color, i, j)) {
+                        return [i, j];
+                    }
+                }
+            }
+            return null;
+        }
+        function bestChoice(pattern, color) {
+            let p;
+            if (p = willWin(pattern, color)) {
+                return {
+                    point: p,
+                    result: 1
+                }
+            }
+            let result = -2;
+            let point = null;
+            outer: for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (pattern[i * 3 + j]) continue;
+                    let temp = clone(pattern);
+                    temp[i * 3 + j] = color;
+                    let r = bestChoice(temp, 3 - color).result
+                    if (-r > result) {
+                        result = -r;
+                        point = [i, j];
+                    }
+                    if (result === 1) {
+                        break outer;
+                    }
+                }
+            }
+            return {
+                point,
+                result: point ? result : 0
+            }
+        }
+        show();
+    </script>
+</body>
+
+</html>
