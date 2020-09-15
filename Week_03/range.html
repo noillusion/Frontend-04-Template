@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>range</title>
+</head>
+
+<body>
+    <div id="container">
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+    </div>
+    <div id="slider" style="display: inline-block; width: 100px;height: 100px;background-color: pink;"></div>
+    <script>
+        let slider = document.getElementById('slider');
+
+        let currentX = 0;
+        let currentY = 0;
+
+        slider.addEventListener('mousedown', (event) => {
+            console.log(event.clientX, event.clientY);
+            let startX = event.clientX;
+            let startY = event.clientY;
+            let move = (event) => {
+                let range = getNearest(event.clientX, event.clientY);
+                range.insertNode(slider);
+                // slider.style.transform = `translate(${event.clientX - startX + currentX}px, ${event.clientY - startY + currentY}px)`
+            }
+            let up = (event) => {
+                currentX = event.clientX - startX + currentX;
+                currentY = event.clientY - startY + currentY;
+                document.removeEventListener('mousemove', move);
+                document.removeEventListener('mouseup', up);
+            }
+
+            document.addEventListener('mousemove', move)
+            document.addEventListener('mouseup', up)
+        })
+        let container = document.getElementById('container');
+        let ranges = [];
+        for (let i = 0; i < container.childNodes[0].textContent.length; i++) {
+            let range = document.createRange();
+            range.setStart(container.childNodes[0], i);
+            range.setEnd(container.childNodes[0], i);
+            ranges.push(range);
+        }
+
+        function getNearest(x, y) {
+            let min = Infinity;
+            let node;
+            for (const range of ranges) {
+                let rect = range.getBoundingClientRect();
+                let distance = (x - rect.x) ** 2 + (y - rect.y) ** 2;
+                if (distance < min) {
+                    min = distance;
+                    node = range;
+                }
+            }
+            return node;
+        }
+        document.addEventListener('selectstart', event => event.preventDefault())
+    </script>
+</body>
+
+</html>
